@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CrApiService } from '../../api/cr-api.service';
@@ -22,6 +22,7 @@ import { canApprovePolicy } from '../../common/permissions';
 })
 export class CrDetailComponent implements OnInit {
 	@Input() id!: string;
+	@Output() statusChanged = new EventEmitter<void>();
 
 	state: ViewState<CrDetail> = idle();
     submitting = false;
@@ -102,6 +103,7 @@ async approve(): Promise<void> {
         );
 
         this.state = { status: 'loaded', data: updated };
+		this.statusChanged.emit();
     } catch (err) {
         this.actionError = (err as Error).message;
     } finally {
@@ -133,6 +135,7 @@ async approve(): Promise<void> {
         );
 
         this.state = { status: 'loaded', data: updated };
+		  this.statusChanged.emit();
     } catch (err) {
         this.actionError = (err as Error).message;
     } finally {

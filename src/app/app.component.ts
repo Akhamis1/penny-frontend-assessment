@@ -34,6 +34,9 @@ export class AppComponent {
 	onSelect(id: string): void {
 		this.selectedId = id;
 	}
+	onStatusChanged(): void {
+    this.reload();
+}
 
 	/** Destroy + recreate the panes so they re-load as the newly selected user. */
 	private reload(): void {
