@@ -11,6 +11,7 @@
 - Added submission-state handling to prevent duplicate actions while an API request is in progress.
 - Added error handling for failed approval and rejection requests.
 - Fixed the mock API transition behavior so failed requests do not update stored Change Request data.
+- Fixed Change Request status synchronization so the list and detail views refresh after a successful approval or rejection.
 
 ## 2. Component & State Model
 
@@ -52,11 +53,11 @@ Tests cover:
 - Rejection-reason validation.
 - Failed approval and rejection requests, including preservation of stored data.
 
-The latest completed test run passed all 16 tests across three test suites.
+The latest completed test run passed all 19 tests across three test suites.
 
 TypeScript validation also passed using `npx tsc --noEmit`.
 
-Additional tests for loading indicators, retry interactions, and delayed API responses would improve coverage.
+The test suite also covers loading, empty, error, and retry behavior. Additional deterministic tests for delayed API responses and repeated clicks during submission would further improve coverage.
 
 ## 5. Assumptions
 
