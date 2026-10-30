@@ -41,5 +41,22 @@ it('hides Reject for a read-only viewer on a pending CR', async () => {
 
     expect(rejectSection).toBeNull();
     });
+    it('sorts timeline events from oldest to newest', async () => {
+        const fixture = await render(users.approver, 'CR-1');
+        const component = fixture.componentInstance;
 
+        const audit = component.detail!.audit;
+
+        component.detail!.audit = [...audit].reverse();
+
+        const timeline = component.timeline;
+
+        expect(timeline.map(entry => entry.at)).toEqual(
+            [...audit]
+                .map(entry => entry.at)
+                .sort((a, b) => Date.parse(a) - Date.parse(b))
+        );
+
+        expect(component.detail!.audit).toEqual([...audit].reverse());
+    });
 });
