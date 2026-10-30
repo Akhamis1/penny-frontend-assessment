@@ -31,4 +31,15 @@ describe('CrDetailComponent', () => {
 		const approveBtn: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__approve');
 		expect(approveBtn.disabled).toBe(true);
 	});
+
+ // NEW TEST: Reject permission
+it('hides Reject for a read-only viewer on a pending CR', async () => {
+    const fixture = await render(users.viewer, 'CR-1');
+
+    const rejectSection =
+        fixture.nativeElement.querySelector('.cr-actions__reject');
+
+    expect(rejectSection).toBeNull();
+    });
+
 });
