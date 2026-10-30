@@ -77,7 +77,6 @@ I reviewed and applied changes in the project, ran the tests and TypeScript chec
 
 ## 7. What I'd Improve With More Time
 
-- Add more rendered tests for loading, empty, error, and retry states.
 - Add deterministic tests for delayed API responses and repeated clicks during submission.
 - Improve accessibility and keyboard navigation.
 - Make permission-aware action visibility more consistent.
