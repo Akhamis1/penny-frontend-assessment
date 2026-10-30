@@ -70,14 +70,14 @@ export class CrDetailComponent implements OnInit {
 	/** Whether the current user may approve the loaded CR. */
 	get canApprove(): boolean {
 		// NOTE: this only looks at the CR status. The UI must also respect the user's permissions.
-	   return (
+       return (
         this.detail?.status === 'PENDING_APPROVAL' &&
         canApprovePolicy(this.session.user)
     );
 }
 
 	get canReject(): boolean {
-	   return (
+       return (
         this.detail?.status === 'PENDING_APPROVAL' &&
         canApprovePolicy(this.session.user)
     );
@@ -135,7 +135,7 @@ async approve(): Promise<void> {
         );
 
         this.state = { status: 'loaded', data: updated };
-		  this.statusChanged.emit();
+          this.statusChanged.emit();
     } catch (err) {
         this.actionError = (err as Error).message;
     } finally {
