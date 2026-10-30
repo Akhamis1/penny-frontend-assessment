@@ -3,6 +3,7 @@ import { CrDetailComponent } from './cr-detail.component';
 import { SessionService } from '../../session/session.service';
 import { users } from '../../api/fixtures';
 import { ReqUser } from '../../models/cr.models';
+import { CrApiService } from '../../api/cr-api.service';
 
 const flush = () => new Promise((r) => setTimeout(r, 0));
 
@@ -59,4 +60,142 @@ it('hides Reject for a read-only viewer on a pending CR', async () => {
 
         expect(component.detail!.audit).toEqual([...audit].reverse());
     });
+	it('approves a pending change request', async () => {
+    const fixture = await render(users.approver, 'CR-1');
+    const component = fixture.componentInstance;
+
+    expect(component.detail?.status).toBe('PENDING_APPROVAL');
+
+    const approveButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.cr-actions__approve');
+
+    approveButton.click();
+    fixture.detectChanges();
+
+    expect(component.submitting).toBe(true);
+    expect(approveButton.disabled).toBe(true);
+
+    await flush();
+    fixture.detectChanges();
+
+    expect(component.detail?.status).toBe('APPROVED');
+    expect(component.submitting).toBe(false);
+    expect(component.canApprove).toBe(false);
+});
+it('requires a valid rejection reason', async () => {
+    const fixture = await render(users.approver, 'CR-1');
+    const component = fixture.componentInstance;
+
+    const rejectButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+
+    expect(rejectButton.disabled).toBe(true);
+
+    component.rejectControl.setValue('   ');
+    fixture.detectChanges();
+
+    expect(component.rejectControl.invalid).toBe(true);
+    expect(rejectButton.disabled).toBe(true);
+
+    component.rejectControl.setValue('Incorrect quantity');
+    fixture.detectChanges();
+
+    expect(component.rejectControl.valid).toBe(true);
+    expect(rejectButton.disabled).toBe(false);
+});
+it('rejects a pending change request and saves the reason', async () => {
+    const fixture = await render(users.approver, 'CR-1');
+    const component = fixture.componentInstance;
+
+    const initialAuditLength = component.detail!.audit.length;
+
+    component.rejectControl.setValue('  Incorrect quantity  ');
+    fixture.detectChanges();
+
+    const rejectButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+
+    rejectButton.click();
+    fixture.detectChanges();
+
+    expect(component.submitting).toBe(true);
+    expect(rejectButton.disabled).toBe(true);
+
+    await flush();
+    fixture.detectChanges();
+
+    expect(component.detail?.status).toBe('REJECTED');
+    expect(component.submitting).toBe(false);
+    expect(component.canReject).toBe(false);
+
+    expect(component.detail?.audit).toHaveLength(initialAuditLength + 1);
+    expect(component.detail!.audit[component.detail!.audit.length - 1]).toEqual(
+        expect.objectContaining({
+            action: 'REJECT',
+            byUserId: users.approver.id,
+            note: 'Incorrect quantity'
+        })
+    );
+});
+it('shows an error and keeps the CR pending when approval fails', async () => {
+    const fixture = await render(users.approver, 'CR-1');
+    const component = fixture.componentInstance;
+    const api = TestBed.inject(CrApiService);
+
+    api.failNext = true;
+
+    const approveButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.cr-actions__approve');
+
+    approveButton.click();
+
+    await flush();
+    fixture.detectChanges();
+
+    expect(component.detail?.status).toBe('PENDING_APPROVAL');
+    expect(component.submitting).toBe(false);
+    expect(component.actionError).toBe('Network error');
+
+    const errorMessage: HTMLElement =
+        fixture.nativeElement.querySelector('.cr-actions__error');
+
+    expect(errorMessage.textContent).toContain('Network error');
+
+    const storedCR = await api.getChangeRequest(users.approver, 'CR-1');
+    expect(storedCR.status).toBe('PENDING_APPROVAL');
+});
+it('shows an error and keeps the CR pending when rejection fails', async () => {
+    const fixture = await render(users.approver, 'CR-1');
+    const component = fixture.componentInstance;
+    const api = TestBed.inject(CrApiService);
+
+    const initialAuditLength = component.detail!.audit.length;
+
+    component.rejectControl.setValue('Incorrect quantity');
+    fixture.detectChanges();
+
+    api.failNext = true;
+
+    const rejectButton: HTMLButtonElement =
+        fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+
+    rejectButton.click();
+
+    await flush();
+    fixture.detectChanges();
+
+    expect(component.detail?.status).toBe('PENDING_APPROVAL');
+    expect(component.submitting).toBe(false);
+    expect(component.actionError).toBe('Network error');
+
+    const errorMessage: HTMLElement =
+        fixture.nativeElement.querySelector('.cr-actions__error');
+
+    expect(errorMessage.textContent).toContain('Network error');
+
+    const storedCR = await api.getChangeRequest(users.approver, 'CR-1');
+
+    expect(storedCR.status).toBe('PENDING_APPROVAL');
+    expect(storedCR.audit).toHaveLength(initialAuditLength);
+});
 });
