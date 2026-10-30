@@ -30,4 +30,36 @@ describe('CrListComponent', () => {
 		expect(fixture.nativeElement.querySelector('.cr-list__empty')).not.toBeNull();
 		expect(fixture.nativeElement.querySelector('.cr-list__table')).toBeNull();
 	});
+	  // TEST #3 — Status Filtering
+    it('filters change requests by status', async () => {
+        const fixture = await render(users.approver);
+        const component = fixture.componentInstance;
+
+        const allRows = component.visibleRows;
+        expect(allRows.length).toBe(3);
+
+        component.onFilterChange('APPROVED');
+        fixture.detectChanges();
+
+        const filteredRows = component.visibleRows;
+
+        expect(filteredRows.every(row => row.status === 'APPROVED')).toBe(true);
+        expect(filteredRows.length).toBeLessThan(allRows.length);
+    });
+ // TEST #4 — Empty Filter Results
+it('shows a message when no requests match the filter', async () => {
+        const fixture = await render(users.approver);
+        const component = fixture.componentInstance;
+
+        component.onFilterChange('CANCELLED');
+        fixture.detectChanges();
+
+        expect(
+            fixture.nativeElement.querySelector('.cr-list__filtered-empty')
+        ).not.toBeNull();
+
+        expect(
+            fixture.nativeElement.querySelector('.cr-list__table')
+        ).toBeNull();
+    });
 });
