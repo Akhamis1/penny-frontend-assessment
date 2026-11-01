@@ -93,5 +93,4 @@ and tested the final implementation.
 - Improve accessibility and keyboard navigation.
 - Make permission-aware action visibility more consistent.
 - Improve user-facing feedback after successful actions.
-- Clean up formatting and remove outdated TODO comments.
 - Consider stronger permission and status validation at the API boundary.
