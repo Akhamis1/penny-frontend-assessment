@@ -69,11 +69,23 @@ The test suite also covers loading, empty, error, and retry behavior. Additional
 - The timeline displays events from oldest to newest.
 - Status filtering is performed locally using organization-scoped results.
 
-## 6. Where I Used AI
+## 6. Handwritten Work and AI Usage
 
-I used ChatGPT as a development assistant to review requirements, investigate failing tests, suggest implementation approaches, troubleshoot TypeScript and Angular issues, and draft documentation.
+### My Contributions
 
-I reviewed and applied changes in the project, ran the tests and TypeScript checks locally, and used the results to verify the implementation.
+- Worked on the Change Request list and detail pages.
+- Added and tested status filtering.
+- Fixed the comparison logic to detect quantity and price changes.
+- Improved the approval and rejection buttons.
+- Tested the application and fixed issues found during testing.
+- Reviewed the final code and recorded the video walkthrough.
+
+### AI Assistance
+
+I used ChatGPT to help understand the requirements,
+suggest code changes, troubleshoot errors, and improve
+the documentation. I reviewed the suggested changes
+and tested the final implementation.
 
 ## 7. What I'd Improve With More Time
 
