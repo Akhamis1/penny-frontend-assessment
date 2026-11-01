@@ -25,16 +25,13 @@ export class CrDetailComponent implements OnInit {
 	@Output() statusChanged = new EventEmitter<void>();
 
 	state: ViewState<CrDetail> = idle();
-    submitting = false;
-    actionError?: string;
+	submitting = false;
+	actionError?: string;
 
-    rejectControl = new FormControl('', {
-    nonNullable: true,
-    validators: [
-        Validators.required,
-        Validators.pattern(/\S/)
-    ]
-});
+	rejectControl = new FormControl('', {
+		nonNullable: true,
+		validators: [Validators.required, Validators.pattern(/\S/)],
+	});
 	constructor(private readonly api: CrApiService, private readonly session: SessionService) {}
 
 	ngOnInit(): void {
@@ -62,84 +59,67 @@ export class CrDetailComponent implements OnInit {
 
 	/** Approval timeline, oldest-first. */
 	get timeline(): TimelineEntry[] {
-		return [...(this.detail?.audit ?? [])].sort(
-        (a, b) => Date.parse(a.at) - Date.parse(b.at)
-    );
-}
+		return [...(this.detail?.audit ?? [])].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+	}
 
 	/** Whether the current user may approve the loaded CR. */
 	get canApprove(): boolean {
 		// NOTE: this only looks at the CR status. The UI must also respect the user's permissions.
-       return (
-        this.detail?.status === 'PENDING_APPROVAL' &&
-        canApprovePolicy(this.session.user)
-    );
-}
+		return this.detail?.status === 'PENDING_APPROVAL' && canApprovePolicy(this.session.user);
+	}
 
 	get canReject(): boolean {
-       return (
-        this.detail?.status === 'PENDING_APPROVAL' &&
-        canApprovePolicy(this.session.user)
-    );
-}
+		return this.detail?.status === 'PENDING_APPROVAL' && canApprovePolicy(this.session.user);
+	}
 
 	fmt(amount: number): string {
 		return this.detail ? formatMoney(amount, this.detail.currency) : String(amount);
 	}
 
-async approve(): Promise<void> {
-    if (!this.canApprove || this.submitting) {
-        return;
-    }
+	async approve(): Promise<void> {
+		if (!this.canApprove || this.submitting) {
+			return;
+		}
 
-    this.submitting = true;
-    this.actionError = undefined;
+		this.submitting = true;
+		this.actionError = undefined;
 
-    try {
-        const updated = await this.api.approve(
-            this.session.user,
-            this.id,
-            new Date().toISOString()
-        );
+		try {
+			const updated = await this.api.approve(this.session.user, this.id, new Date().toISOString());
 
-        this.state = { status: 'loaded', data: updated };
-		this.statusChanged.emit();
-    } catch (err) {
-        this.actionError = (err as Error).message;
-    } finally {
-        this.submitting = false;
-    }
-}
+			this.state = { status: 'loaded', data: updated };
+			this.statusChanged.emit();
+		} catch (err) {
+			this.actionError = (err as Error).message;
+		} finally {
+			this.submitting = false;
+		}
+	}
 
 	async reject(): Promise<void> {
-    if (!this.canReject || this.submitting) {
-        return;
-    }
+		if (!this.canReject || this.submitting) {
+			return;
+		}
 
-    const reason = this.rejectControl.value.trim();
+		const reason = this.rejectControl.value.trim();
 
-    if (this.rejectControl.invalid || !reason) {
-        this.rejectControl.markAsTouched();
-        return;
-    }
+		if (this.rejectControl.invalid || !reason) {
+			this.rejectControl.markAsTouched();
+			return;
+		}
 
-    this.submitting = true;
-    this.actionError = undefined;
+		this.submitting = true;
+		this.actionError = undefined;
 
-    try {
-        const updated = await this.api.reject(
-            this.session.user,
-            this.id,
-            new Date().toISOString(),
-            reason
-        );
+		try {
+			const updated = await this.api.reject(this.session.user, this.id, new Date().toISOString(), reason);
 
-        this.state = { status: 'loaded', data: updated };
-          this.statusChanged.emit();
-    } catch (err) {
-        this.actionError = (err as Error).message;
-    } finally {
-        this.submitting = false;
-    }
-}
+			this.state = { status: 'loaded', data: updated };
+			this.statusChanged.emit();
+		} catch (err) {
+			this.actionError = (err as Error).message;
+		} finally {
+			this.submitting = false;
+		}
+	}
 }

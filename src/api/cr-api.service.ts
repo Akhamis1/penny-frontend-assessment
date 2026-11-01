@@ -41,7 +41,9 @@ export class CrApiService {
 			.filter((s) => s.orgCode === user.orgCode)
 			.map((s) => {
 				const d = this.detailStore[s.id];
-				return d ? { id: d.id, title: d.title, status: d.status, orgCode: d.orgCode, delta: d.delta, currency: d.currency, updatedAt: d.updatedAt } : { ...s };
+				return d
+					? { id: d.id, title: d.title, status: d.status, orgCode: d.orgCode, delta: d.delta, currency: d.currency, updatedAt: d.updatedAt }
+					: { ...s };
 			});
 		return this.settle(rows);
 	}
@@ -60,33 +62,23 @@ export class CrApiService {
 		return this.transition(user, id, 'REJECTED', 'REJECT', at, reason);
 	}
 
-	private transition(
-    user: ReqUser,
-    id: string,
-    status: CrDetail['status'],
-    action: string,
-    at: string,
-    note?: string
-): Promise<CrDetail> {
-    const cr = this.detailStore[id];
+	private transition(user: ReqUser, id: string, status: CrDetail['status'], action: string, at: string, note?: string): Promise<CrDetail> {
+		const cr = this.detailStore[id];
 
-    if (!cr || cr.orgCode !== user.orgCode) {
-        return this.fail<CrDetail>('Not found');
-    }
+		if (!cr || cr.orgCode !== user.orgCode) {
+			return this.fail<CrDetail>('Not found');
+		}
 
-    const updated: CrDetail = {
-        ...cr,
-        status,
-        updatedAt: at,
-        audit: [
-            ...cr.audit,
-            { action, byUserId: user.id, at, note }
-        ]
-    };
+		const updated: CrDetail = {
+			...cr,
+			status,
+			updatedAt: at,
+			audit: [...cr.audit, { action, byUserId: user.id, at, note }],
+		};
 
-    return this.settle(updated).then((result) => {
-        this.detailStore[id] = result;
-        return { ...result };
-    });
-}
+		return this.settle(updated).then((result) => {
+			this.detailStore[id] = result;
+			return { ...result };
+		});
+	}
 }

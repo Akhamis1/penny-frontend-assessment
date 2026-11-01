@@ -47,8 +47,7 @@ describe('CrDetailComponent', () => {
 	it('hides Reject for a read-only viewer on a pending CR', async () => {
 		const fixture = await render(users.viewer, 'CR-1');
 
-		const rejectSection =
-			fixture.nativeElement.querySelector('.cr-actions__reject');
+		const rejectSection = fixture.nativeElement.querySelector('.cr-actions__reject');
 
 		expect(rejectSection).toBeNull();
 	});
@@ -63,11 +62,7 @@ describe('CrDetailComponent', () => {
 
 		const timeline = component.timeline;
 
-		expect(timeline.map(entry => entry.at)).toEqual(
-			[...audit]
-				.map(entry => entry.at)
-				.sort((a, b) => Date.parse(a) - Date.parse(b))
-		);
+		expect(timeline.map((entry) => entry.at)).toEqual([...audit].map((entry) => entry.at).sort((a, b) => Date.parse(a) - Date.parse(b)));
 
 		expect(detail.audit).toEqual([...audit].reverse());
 	});
@@ -77,8 +72,7 @@ describe('CrDetailComponent', () => {
 
 		expect(component.detail?.status).toBe('PENDING_APPROVAL');
 
-		const approveButton: HTMLButtonElement =
-			fixture.nativeElement.querySelector('.cr-actions__approve');
+		const approveButton: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__approve');
 
 		approveButton.click();
 		fixture.detectChanges();
@@ -97,8 +91,7 @@ describe('CrDetailComponent', () => {
 		const fixture = await render(users.approver, 'CR-1');
 		const component = fixture.componentInstance;
 
-		const rejectButton: HTMLButtonElement =
-			fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+		const rejectButton: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__reject-btn');
 
 		expect(rejectButton.disabled).toBe(true);
 
@@ -123,8 +116,7 @@ describe('CrDetailComponent', () => {
 		component.rejectControl.setValue('  Incorrect quantity  ');
 		fixture.detectChanges();
 
-		const rejectButton: HTMLButtonElement =
-			fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+		const rejectButton: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__reject-btn');
 
 		rejectButton.click();
 		fixture.detectChanges();
@@ -145,8 +137,8 @@ describe('CrDetailComponent', () => {
 			expect.objectContaining({
 				action: 'REJECT',
 				byUserId: users.approver.id,
-				note: 'Incorrect quantity'
-			})
+				note: 'Incorrect quantity',
+			}),
 		);
 	});
 	it('shows an error and keeps the CR pending when approval fails', async () => {
@@ -156,8 +148,7 @@ describe('CrDetailComponent', () => {
 
 		api.failNext = true;
 
-		const approveButton: HTMLButtonElement =
-			fixture.nativeElement.querySelector('.cr-actions__approve');
+		const approveButton: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__approve');
 
 		approveButton.click();
 
@@ -168,8 +159,7 @@ describe('CrDetailComponent', () => {
 		expect(component.submitting).toBe(false);
 		expect(component.actionError).toBe('Network error');
 
-		const errorMessage: HTMLElement =
-			fixture.nativeElement.querySelector('.cr-actions__error');
+		const errorMessage: HTMLElement = fixture.nativeElement.querySelector('.cr-actions__error');
 
 		expect(errorMessage.textContent).toContain('Network error');
 
@@ -188,8 +178,7 @@ describe('CrDetailComponent', () => {
 
 		api.failNext = true;
 
-		const rejectButton: HTMLButtonElement =
-			fixture.nativeElement.querySelector('.cr-actions__reject-btn');
+		const rejectButton: HTMLButtonElement = fixture.nativeElement.querySelector('.cr-actions__reject-btn');
 
 		rejectButton.click();
 
@@ -200,8 +189,7 @@ describe('CrDetailComponent', () => {
 		expect(component.submitting).toBe(false);
 		expect(component.actionError).toBe('Network error');
 
-		const errorMessage: HTMLElement =
-			fixture.nativeElement.querySelector('.cr-actions__error');
+		const errorMessage: HTMLElement = fixture.nativeElement.querySelector('.cr-actions__error');
 
 		expect(errorMessage.textContent).toContain('Network error');
 
